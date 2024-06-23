@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Configuration, OpenAIApi } from "openai";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,16 +36,33 @@ const Index = () => {
       description: "Sending file for transcription...",
     });
 
-    // Simulate file upload and transcription
-    const transcribedText = "Simulated transcription text.";
-    setTranscription(transcribedText);
+    try {
+      const configuration = new Configuration({
+        apiKey: apiKey,
+      });
+      const openai = new OpenAIApi(configuration);
 
-    toast({
-      title: "Transcription",
-      description: "Transcription completed.",
-    });
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("model", "whisper-1");
 
-    handleFormatting(transcribedText);
+      const response = await openai.createTranscription(formData);
+      const transcribedText = response.data.text;
+      setTranscription(transcribedText);
+
+      toast({
+        title: "Transcription",
+        description: "Transcription completed.",
+      });
+
+      handleFormatting(transcribedText);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred during transcription.",
+      });
+      console.error("Transcription error:", error);
+    }
   };
 
   const handleFormatting = async (text) => {
@@ -53,14 +71,32 @@ const Index = () => {
       description: "Sending text for formatting...",
     });
 
-    // Simulate GPT-3.5 call for formatting
-    const formatted = `Formatted: ${text}`;
-    setFormattedText(formatted);
+    try {
+      const configuration = new Configuration({
+        apiKey: apiKey,
+      });
+      const openai = new OpenAIApi(configuration);
 
-    toast({
-      title: "Formatting",
-      description: "Formatting completed.",
-    });
+      const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `Format the following text:\n\n${text}`,
+        max_tokens: 1024,
+      });
+
+      const formatted = response.data.choices[0].text.trim();
+      setFormattedText(formatted);
+
+      toast({
+        title: "Formatting",
+        description: "Formatting completed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred during formatting.",
+      });
+      console.error("Formatting error:", error);
+    }
   };
 
   return (
