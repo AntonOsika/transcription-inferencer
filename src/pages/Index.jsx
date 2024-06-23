@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAIApi from "openai";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,10 +37,10 @@ const Index = () => {
     });
 
     try {
-      const configuration = new Configuration({
+      const configuration = new OpenAIApi.Configuration({
         apiKey: apiKey,
       });
-      const openai = new OpenAIApi(configuration);
+      const openai = new OpenAIApi.OpenAIApi(configuration);
 
       const formData = new FormData();
       formData.append("file", file);
@@ -72,10 +72,10 @@ const Index = () => {
     });
 
     try {
-      const configuration = new Configuration({
+      const configuration = new OpenAIApi.Configuration({
         apiKey: apiKey,
       });
-      const openai = new OpenAIApi(configuration);
+      const openai = new OpenAIApi.OpenAIApi(configuration);
 
       const response = await openai.createCompletion({
         model: "text-davinci-003",
