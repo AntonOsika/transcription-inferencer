@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import OpenAIApi from "openai";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,17 +36,24 @@ const Index = () => {
     });
 
     try {
-      const configuration = new OpenAIApi.Configuration({
-        apiKey: apiKey,
-      });
-      const openai = new OpenAIApi.OpenAIApi(configuration);
-
       const formData = new FormData();
       formData.append("file", file);
       formData.append("model", "whisper-1");
 
-      const response = await openai.createTranscription(formData);
-      const transcribedText = response.data.text;
+      const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Transcription request failed");
+      }
+
+      const data = await response.json();
+      const transcribedText = data.text;
       setTranscription(transcribedText);
 
       toast({
@@ -72,18 +78,25 @@ const Index = () => {
     });
 
     try {
-      const configuration = new OpenAIApi.Configuration({
-        apiKey: apiKey,
+      const response = await fetch("https://api.openai.com/v1/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "text-davinci-003",
+          prompt: `Format the following text:\n\n${text}`,
+          max_tokens: 1024,
+        }),
       });
-      const openai = new OpenAIApi.OpenAIApi(configuration);
 
-      const response = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: `Format the following text:\n\n${text}`,
-        max_tokens: 1024,
-      });
+      if (!response.ok) {
+        throw new Error("Formatting request failed");
+      }
 
-      const formatted = response.data.choices[0].text.trim();
+      const data = await response.json();
+      const formatted = data.choices[0].text.trim();
       setFormattedText(formatted);
 
       toast({
