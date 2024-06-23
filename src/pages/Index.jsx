@@ -85,8 +85,8 @@ const Index = () => {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "text-davinci-003",
-          prompt: `Format the following text:\n\n${text}`,
+          model: "gpt-3.5-turbo",
+          prompt: `The following text comes from a transcription. Please format it with line breaks and rewrite for clarity and brevity without losing semantics and emphasis:\n\n${text}`,
           max_tokens: 1024,
         }),
       });
